@@ -103,35 +103,27 @@ h1 {
 #inputModalBox button:hover {background:linear-gradient(85deg,#1da0d8 60%,#25dbd4 100%);}
 #inputModalBox button#modalClose {background:#d32f2f;}
 #inputModalBox button#modalClose:hover {background:#d3052f;}
-/* البطاقة العائمة */
 .modal {display:none; position:fixed; left:0; top:0; width:100%; height:100%;
     background:rgba(30,43,58,0.92); z-index:10000; justify-content:center; align-items:center;}
 .card {width:370px; background:linear-gradient(113deg,#fff 75%,#22b9e5 160%);
     border-radius:25px; overflow:hidden; box-shadow:0 22px 44px #2d7ff74a,0 2px 4px #fff;
     margin:0 auto; display:flex; flex-direction:column;align-items:center; position:relative;}
-.card-header {
-    color:#1976d2; padding:30px 18px 12px 18px; text-align:center;
+.card-header {color:#1976d2; padding:30px 18px 12px 18px; text-align:center;
     font-size:33px; font-weight:900; width:98%; word-break: break-word; line-height:1.45;
     letter-spacing:.6px; border-right:10px solid #12bee7;
     background:linear-gradient(97deg,#fff 60%,#d3faff 120%);
     margin-bottom:0;border-radius:16px 0 20px 0;box-shadow:0 1.5px 10px #21badc23;}
-.big-serial {
-    font-size:54px; font-weight:900;
-    color: #dc143c; border-right:9px solid #f55151;
+.big-serial {font-size:54px; font-weight:900; color: #dc143c; border-right:9px solid #f55151;
     background:linear-gradient(87deg,#fff 70%,#ffe4e4 110%);
     padding:26px 0 23px 0; border-radius:17px;
-    margin:17px 0 19px 0; letter-spacing:3px;
-    text-align:center;width: 85%;text-shadow:0 2px 8px #f55151a6;
-    box-shadow:0 2px 20px #21badc31,0 2px 14px #ffadad08;
-}
+    margin:17px 0 19px 0; letter-spacing:3px;text-align:center;width: 85%;
+    text-shadow:0 2px 8px #f55151a6;
+    box-shadow:0 2px 20px #21badc31,0 2px 14px #ffadad08;}
 .print-btn {background:linear-gradient(90deg,#e7233c 70%,#ff8b8b 100%); color:white; border:none;
     width:82%; padding:16px; margin:18px auto 18px auto; border-radius:40px; font-size:27px; cursor:pointer; box-shadow:0 3px 18px #d32f2f22; font-weight:800; transition:.13s;}
 .print-btn:hover {background:linear-gradient(90deg,#f85737 60%,#ffdadd 120%);color:#dc143c;}
-.close-btn {
-    position:absolute; left:13px;top:13px;font-size:28px; background:linear-gradient(120deg,#ee8899 30%,#ffeded 160%);
-    color:#b31c2d; border:none; border-radius:24px; padding:5px 17px 2px 17px; cursor:pointer;
-    font-weight:800; transition: 0.18s; box-shadow:0 2px 7px #fbc6c6ab;
-}
+.close-btn {position:absolute; left:13px;top:13px;font-size:28px; background:linear-gradient(120deg,#ee8899 30%,#ffeded 160%);
+    color:#b31c2d; border:none; border-radius:24px; padding:5px 17px 2px 17px; cursor:pointer; font-weight:800; transition: 0.18s; box-shadow:0 2px 7px #fbc6c6ab;}
 .close-btn:hover {background:#ffdddd;color:#7a0512;}
 @media print {
     body * {visibility:hidden;}
@@ -248,7 +240,6 @@ function normalizeName(str) {
     return str.replace(/[يى]/g, "ى").replace(/\s+/g, " ").trim();
 }
 function isApproxMatch(qArr, nArr) {
-    // كم كلمة محسوبة تقريبياً موجودة
     let matches = qArr.filter(qw => nArr.some(nw => levenshtein(qw, nw) <= 2));
     return matches.length >= Math.min(3, qArr.length);
 }
@@ -328,14 +319,13 @@ function fastSearch() {
             <div class="voter-serial">رقم الكشف: ${v.number}</div>
         `;
         div.onclick = () => {
-            // استبدل الاسم في قاعدة البيانات تلقائيا بالمدخل الحالي إذا كان مختلفا
             let inputName = normalizeName(document.getElementById('searchBox').value.trim());
             let nameArr = normalizeName(v.name).split(" ").filter(Boolean);
             let inputArr = inputName.split(" ").filter(Boolean);
+            // إذا كان الاسم المكتوب مختلف فعلاً لكن يطابق بشكل تقريبي صحيح، غيّره فوراً في البيانات:
             if (inputArr.length > 0 && inputName !== normalizeName(v.name)
                  && isApproxMatch(inputArr, nameArr)) {
                 voters[obj.idx].name = document.getElementById('searchBox').value.trim();
-                div.querySelector('.voter-name').textContent = document.getElementById('searchBox').value.trim();
             }
             showCard(voters[obj.idx]);
         };
