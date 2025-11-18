@@ -239,6 +239,69 @@ function fixNumbers(str) {
 function normalizeName(str) {
     return str.replace(/[يى]/g, "ى").replace(/\s+/g, " ").trim();
 }
+function levenshtein(a, b) {
+    a = a || ""; b = b || "";
+    const m = a.length, n = b.length;
+    if (!m) return n; if (!n) return m;
+    let v0 = new Array(n + 1), v1 = new Array(n + 1);
+    for (let i = 0; i <= n; i++) v0[i] = i;
+    for (let i = 0; i < m; i++) {
+        v1[0] = i + 1;
+        for (let j = 0; j < n; j++)
+            v1[j + 1] = Math.min(
+                v1[j] + 1,
+                v0[j + 1] + 1,
+                v0[j] + (a[i] === b[j] ? 0 : 1));
+        [v0, v1] = [v1, v0];
+    }
+    return v0[n];
+}
+function fastSearch() {
+    const q = document.getElementById("searchBox").value.trim();
+    const res = document.getElementById("results");
+    res.innerHTML = "";
+    if (!q) return;
+    const qArr = normalizeName(q).split(" ").filter(Boolean);
+    if (qArr.length === 0) return;
+    let matches = [];
+    for (let i=0;i<voters.length;++i) {
+        const v = voters[i];
+        const nameStr = normalizeName(v.name);
+        const nameArr = nameStr.split(" ").filter(Boolean);
+
+        // يجب أن تحتوي النتيجة على كل كلمات البحث (أو تقريب لها)
+        let ok = qArr.every(qWord =>
+            nameArr.some(nWord =>
+                nWord.includes(qWord) ||
+                qWord.includes(nWord) ||
+                levenshtein(qWord, nWord) <= 2));
+        if (ok) matches.push({v, idx:i});
+    }
+
+    if (matches.length === 0) return;
+    matches.slice(0, 18).forEach(obj => {
+        const v = obj.v;
+        const div = document.createElement("div");
+        div.className = "voter-item";
+        div.innerHTML = `
+            <div class="voter-name">${v.name}</div>
+            <div class="voter-serial">رقم الكشف: ${v.number}</div>
+        `;
+        div.onclick = () => {
+            let inputName = document.getElementById('searchBox').value.trim();
+            let nameArr = normalizeName(v.name).split(" ").filter(Boolean);
+            let inputArr = normalizeName(inputName).split(" ").filter(Boolean);
+            let precise = inputArr.every(qw => nameArr.some(nw => nw === qw));
+            // تصحيح الاسم إذا تطابق كل الكلمات
+            if (inputArr.length > 0 && inputName !== normalizeName(v.name)
+                 && ok) {
+                voters[obj.idx].name = inputName;
+            }
+            showCard(voters[obj.idx]);
+        };
+        res.appendChild(div);
+    });
+}
 function extractNumberName(line) {
     line = fixNumbers(line).trim();
     if (!line) return [];
@@ -268,74 +331,6 @@ function loadData() {
     fastSearch();
     updateDotStatus();
 }
-function levenshtein(a, b) {
-    a = a || ""; b = b || "";
-    const m = a.length, n = b.length;
-    if (!m) return n; if (!n) return m;
-    let v0 = new Array(n + 1), v1 = new Array(n + 1);
-    for (let i = 0; i <= n; i++) v0[i] = i;
-    for (let i = 0; i < m; i++) {
-        v1[0] = i + 1;
-        for (let j = 0; j < n; j++)
-            v1[j + 1] = Math.min(
-                v1[j] + 1,
-                v0[j + 1] + 1,
-                v0[j] + (a[i] === b[j] ? 0 : 1));
-        [v0, v1] = [v1, v0];
-    }
-    return v0[n];
-}
-function fastSearch() {
-    const q = document.getElementById("searchBox").value.trim();
-    const res = document.getElementById("results");
-    res.innerHTML = "";
-    if (!q) return;
-    
-    const qArr = normalizeName(q).split(" ").filter(Boolean);
-    if (qArr.length === 0) return;
-    
-    let matches = [];
-    for (let i = 0; i < voters.length; i++) {
-        const v = voters[i];
-        const nameArr = normalizeName(v.name).split(" ").filter(Boolean);
-        
-        // عد كم كلمة تطابقت
-        let matchCount = 0;
-        for (let qWord of qArr) {
-            for (let nWord of nameArr) {
-                if (levenshtein(qWord, nWord) <= 2) {
-                    matchCount++;
-                    break; // كل كلمة بحث تحتسب مرة واحدة
-                }
-            }
-        }
-        
-        // شرط المطابقة: يجب أن تطابق كل الكلمات المكتوبة أو معظمها
-        if (matchCount > 0 && matchCount >= Math.ceil(qArr.length * 0.8)) {
-            matches.push({v, idx: i, matchCount});
-        }
-    }
-    
-    if (matches.length === 0) return;
-    
-    // رتب النتائج: الأفضل تطابقاً أولاً، ثم حسب الرقم
-    matches.sort((a, b) => b.matchCount - a.matchCount || (parseInt(a.v.number) - parseInt(b.v.number)));
-    
-    // اعرض أول 16 نتيجة
-    matches.slice(0, 16).forEach(obj => {
-        const v = obj.v;
-        const div = document.createElement("div");
-        div.className = "voter-item";
-        div.innerHTML = `
-            <div class="voter-name">${v.name}</div>
-            <div class="voter-serial">رقم الكشف: ${v.number}</div>
-        `;
-        div.onclick = () => {
-            showCard(voters[obj.idx]);
-        };
-        res.appendChild(div);
-    });
-}
 function showCard(v) {
     document.getElementById("modalName").textContent = v.name;
     document.getElementById("modalSerial").textContent = v.number;
@@ -343,6 +338,7 @@ function showCard(v) {
     document.getElementById("modal").style.display = "flex";
     speakNumber(v.number);
 }
+function printCard() {window.print();}
 function speakNumber(num) {
     if ('speechSynthesis' in window) {
         let utter = new SpeechSynthesisUtterance(num.toString());
