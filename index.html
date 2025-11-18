@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>انتخابات 2025</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+
 <style>
 * {margin: 0; padding: 0; box-sizing: border-box;}
 body {
@@ -275,7 +276,7 @@ h1 {
 .big-serial {
     font-size:clamp(40px, 10vw, 54px);
     font-weight:900;
-    color:#dc143c;
+    color: #dc143c;
     border-right:9px solid #f55151;
     background:linear-gradient(87deg,#fff 70%,#ffe4e4 110%);
     padding:clamp(20px, 5vw, 26px) 0 clamp(20px, 5vw, 23px) 0;
@@ -355,6 +356,13 @@ h1 {
 }
 ::-webkit-scrollbar{height:9px;width:7px;background:#eee;}
 ::-webkit-scrollbar-thumb{background:#10c1e7;border-radius:7px;}
+/* --- تسريع الأداء للجوال --- */
+@media(max-width:700px){
+  body, .container, .voter-item, .card, .print-btn {
+      box-shadow: none !important;
+      animation: none !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -450,9 +458,7 @@ function fixNumbers(str) {
     return str.replace(/[٠-٩]/g, d => map[d]);
 }
 function normalizeName(str) {
-    // توحيد ي و ى، وإزالة الفراغات الزائدة
     str = str.replace(/[يى]/g, "ى").replace(/\s+/g, " ").trim();
-    // دمج عبد واسم بعده (أي "عبد الوهاب" تصبح "عبدالوهاب" للبحث)
     str = str.replace(/عبد\s+/g, 'عبد');
     return str;
 }
@@ -556,7 +562,6 @@ function smartMatch(q, name) {
             }
         }
     }
-    // يكفي لو 60% من كلمات البحث وجدت تشابه
     return matchCount >= Math.max(1, Math.floor(qWords.length * 0.6));
 }
 function search() {
@@ -573,8 +578,9 @@ function search() {
             out.push({ v, score });
         }
     }
+    let maxResults = window.innerWidth < 700 ? 8 : 20;
     out.sort((a, b) => a.score - b.score)
-       .slice(0, 20)
+       .slice(0, maxResults)
        .forEach(o => {
             let v = o.v;
             let escapedName = v.name.replace(/'/g, "\\'");
@@ -599,12 +605,11 @@ function showCardWithName(number, originalName, searchQuery) {
 }
 function printCard() {window.print();}
 
-// دالة تحويل الرقم إلى نص عربي صحيح (حتى 9999)
+// دالة تحويل الرقم العربي الفصيح (حتى 9999)
 function numberToArabic(num) {
     num = parseInt(num);
     if(num === 0) return "صفر";
     let parts = [];
-
     // الآلاف
     if(num >= 1000) {
         let thousands = Math.floor(num / 1000);
@@ -614,7 +619,6 @@ function numberToArabic(num) {
         else parts.push(thousands + " ألف");
         num %= 1000;
     }
-
     // المئات
     if(num >= 100) {
         let hundreds = Math.floor(num / 100);
@@ -623,7 +627,6 @@ function numberToArabic(num) {
         else parts.push(["ثلاثمائة","أربعمائة","خمسمائة","ستمائة","سبعمائة","ثمانمائة","تسعمائة"][hundreds-3]);
         num %= 100;
     }
-
     // العشرات والوحدات
     if(num >= 20) {
         let tens = Math.floor(num / 10);
@@ -645,16 +648,14 @@ function numberToArabic(num) {
         let onesWords = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
         parts.push(onesWords[num]);
     }
-
     return parts.join(" و ");
 }
-
-// دالة نطق الرقم بالعربية (يفضل نسخها كما هي دون تغيير)
+// نطق الرقم العربي الفصيح
 function speakNumber(num) {
     if ('speechSynthesis' in window) {
         const txt = numberToArabic(num);
         let utter = new SpeechSynthesisUtterance(txt);
-        utter.lang = 'ar-SA'; // جرب ar-EG إذا لزم الأمر
+        utter.lang = 'ar-SA';
         let voices = speechSynthesis.getVoices();
         let voice = voices.find(v => v.lang && v.lang.startsWith('ar'));
         if(voice) utter.voice = voice;
@@ -664,15 +665,13 @@ function speakNumber(num) {
         speechSynthesis.speak(utter);
     }
 }
-
-// تحميل أصوات المتصفح العربية عند التشغيل (مطلوب للمتصفحات الحديثة)
 window.speechSynthesis.onvoiceschanged = () => {};
 
 let recognition;
 let micActive = false;
 let silenceTimeout;
 let speechBuffer = "";
-const SILENCE_DURATION = 700;
+const SILENCE_DURATION = 200;
 try {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
@@ -688,23 +687,20 @@ try {
         results.innerHTML = "";
         clearTimeout(silenceTimeout);
     };
+    // بحث صوتي فوري عند نهاية الكلام على الموبايل
     recognition.onresult = e => {
+        let tempBuffer = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
             if (e.results[i].isFinal) {
-                speechBuffer += e.results[i][0].transcript.trim() + " ";
+                tempBuffer += e.results[i][0].transcript.trim() + " ";
             }
         }
-        clearTimeout(silenceTimeout);
-        silenceTimeout = setTimeout(() => {
-            if (micActive && speechBuffer.trim()) {
-                recognition.stop();
-                micActive = false;
-                micBtn.classList.remove('active');
-                micStatus.textContent = "";
-                searchBox.value = speechBuffer.trim();
-                search();
-            }
-        }, SILENCE_DURATION);
+        if (tempBuffer.trim()) {
+            searchBox.value = tempBuffer.trim();
+            search();
+            speechBuffer = "";
+            recognition.stop();
+        }
     };
     recognition.onerror = e => {
         micActive = false;
