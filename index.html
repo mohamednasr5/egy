@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>انتخابات 2025</title>
 <style>
+* {margin: 0; padding: 0; box-sizing: border-box;}
 body {
     font-family: 'Cairo', Tahoma, Arial, sans-serif;
     background: linear-gradient(135deg,#eeffee 0%,#bbcaf9 100%);
@@ -546,27 +547,23 @@ function correctName(searchText, originalName) {
         let originalWord = originalWords[i];
         let foundMatch = false;
         
-        // ابحث عن أقرب كلمة من البحث لهذه الكلمة الأصلية
         for (let j = 0; j < searchWords.length; j++) {
             let searchWord = searchWords[j];
             let distance = levenshtein(searchWord, originalWord);
             
-            // إذا كان الفرق بسيط جداً (1-2 أحرف)، استخدم كلمة البحث (التصحيح)
             if (distance <= 2 && Math.abs(searchWord.length - originalWord.length) <= 2) {
                 correctedWords.push(searchWord);
                 foundMatch = true;
-                searchWords.splice(j, 1); // أزل الكلمة المستخدمة
+                searchWords.splice(j, 1);
                 break;
             }
         }
         
-        // إذا لم نجد تطابق، احتفظ بالكلمة الأصلية
         if (!foundMatch) {
             correctedWords.push(originalWord);
         }
     }
     
-    // إذا كانت هناك كلمات بحث متبقية وأقل من عدد الكلمات الأصلية، أضفها
     if (searchWords.length > 0 && correctedWords.length === originalWords.length) {
         correctedWords.push(...searchWords);
     }
@@ -599,35 +596,12 @@ function search() {
             <div class="voter-serial">رقم الكشف: ${v.number}</div>
         `;
         div.onclick = () => {
-            // تصحيح الكلمات الغلط فقط، لا تعديل قاعدة البيانات
             const correctedName = correctName(document.getElementById("searchBox").value.trim(), v.name);
             showCardWithName(v.number, correctedName);
         };
         res.appendChild(div);
     });
 }
-
-function showCard(v) {
-    document.getElementById("modalName").textContent = v.name;
-    document.getElementById("modalSerial").textContent = v.number;
-    document.getElementById("pSerialOnly").textContent = v.number;
-    document.getElementById("modal").style.display = "flex";
-    speakNumber(v.number);
-}
-
-function showCardWithName(number, displayName) {
-    document.getElementById("modalName").textContent = displayName;
-    document.getElementById("modalSerial").textContent = number;
-    document.getElementById("pSerialOnly").textContent = number;
-    document.getElementById("modal").style.display = "flex";
-    speakNumber(number);
-}
-
-function printCard() {window.print();}
-
-let recognition;
-let micActive = false;
-let wordCount = 0;
 
 function numberToArabic(num) {
     const ones = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
@@ -678,8 +652,8 @@ function speakNumber(num) {
     if ('speechSynthesis' in window) {
         const arabicNum = numberToArabic(num);
         let utter = new SpeechSynthesisUtterance(arabicNum);
-        utter.lang = 'ar-EG';
-        utter.rate = 0.9;
+        utter.lang = 'ar';
+        utter.rate = 1.0;
         utter.pitch = 1.0;
         utter.volume = 1.0;
         window.speechSynthesis.cancel();
@@ -687,72 +661,98 @@ function speakNumber(num) {
     }
 }
 
+function showCard(v) {
+    document.getElementById("modalName").textContent = v.name;
+    document.getElementById("modalSerial").textContent = v.number;
+    document.getElementById("pSerialOnly").textContent = v.number;
+    document.getElementById("modal").style.display = "flex";
+    speakNumber(v.number);
+}
+
+function showCardWithName(number, displayName) {
+    document.getElementById("modalName").textContent = displayName;
+    document.getElementById("modalSerial").textContent = number;
+    document.getElementById("pSerialOnly").textContent = number;
+    document.getElementById("modal").style.display = "flex";
+    speakNumber(number);
+}
+
+function printCard() {window.print();}
+
+let recognition;
+let micActive = false;
+let silenceTimeout;
+let speechBuffer = "";
+const SILENCE_DURATION = 700;
+
 try {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
     recognition.lang = 'ar-EG';
     recognition.continuous = true;
-    recognition.interimResults = true;
+    recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     
     recognition.onstart = () => {
         micActive = true;
-        wordCount = 0;
+        speechBuffer = "";
         document.getElementById('micBtn').classList.add('active');
         document.getElementById('micStatus').textContent = "يستمع...";
         document.getElementById('searchBox').value = "";
         document.getElementById('results').innerHTML = "";
+        clearTimeout(silenceTimeout);
     };
     
     recognition.onresult = (event) => {
-        let transcript = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript + " ";
+            if (event.results[i].isFinal) {
+                speechBuffer += event.results[i][0].transcript.trim() + " ";
+            }
         }
-        transcript = transcript.trim();
         
-        // عد الكلمات
-        wordCount = transcript.split(/\s+/).filter(w => w.length > 0).length;
-        
-        document.getElementById('searchBox').value = transcript;
-        
-        // إذا وصلنا لـ 4-5 كلمات، توقف وابحث
-        if (wordCount >= 4) {
-            recognition.stop();
-            micActive = false;
-            document.getElementById('micBtn').classList.remove('active');
-            document.getElementById('micStatus').textContent = "";
+        clearTimeout(silenceTimeout);
+        silenceTimeout = setTimeout(() => {
+            if (micActive && speechBuffer.trim()) {
+                recognition.stop();
+                micActive = false;
+                document.getElementById('micBtn').classList.remove('active');
+                document.getElementById('micStatus').textContent = "";
+                document.getElementById('searchBox').value = speechBuffer.trim();
+                search();
+            }
+        }, SILENCE_DURATION);
+    };
+    
+    recognition.onend = () => {
+        clearTimeout(silenceTimeout);
+        micActive = false;
+        document.getElementById('micBtn').classList.remove('active');
+        document.getElementById('micStatus').textContent = "";
+        if (speechBuffer.trim()) {
+            document.getElementById('searchBox').value = speechBuffer.trim();
             search();
         }
     };
     
-    recognition.onend = () => {
-        if (micActive) {
-            micActive = false;
-            document.getElementById('micBtn').classList.remove('active');
-            document.getElementById('micStatus').textContent = "";
-            const text = document.getElementById('searchBox').value.trim();
-            if (text) {
-                search();
-            }
-        }
-    };
-    
     recognition.onerror = (e) => {
+        clearTimeout(silenceTimeout);
         micActive = false;
         document.getElementById('micBtn').classList.remove('active');
-        document.getElementById('micStatus').textContent = "❌ لم تلتقط الصوت بشكل صحيح";
+        if (e.error === 'no-speech') {
+            document.getElementById('micStatus').textContent = "⚠️ لم يتم التقاط صوت";
+        } else {
+            document.getElementById('micStatus').textContent = "❌ خطأ في الاستماع";
+        }
     }
     
     document.getElementById('micBtn').addEventListener('click', function() {
         if (!micActive) {
-            wordCount = 0;
+            speechBuffer = "";
             recognition.start();
+        } else {
+            recognition.stop();
         }
     });
 } catch (e) {
-    document.getElementById('micStatus').textContent = "🎤 غير مدعوم في هذا المتصفح";
+    document.getElementById('micStatus').textContent = "🎤 غير مدعوم";
 }
-</script>
-</body>
-</html>
