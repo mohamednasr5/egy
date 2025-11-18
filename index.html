@@ -201,6 +201,12 @@ h1 {
     align-items: center;
     animation: fadein .61s cubic-bezier(.41,1.14,.77,1);
 }
+#inputModalBox h3 {
+    color:#1976d2;
+    margin-bottom:8px;
+    text-align:center;
+    font-size:clamp(20px, 5vw, 25px);
+}
 #inputModalBox textarea {
     width:100%; 
     min-height:180px;
@@ -393,11 +399,12 @@ h1 {
 </button>
 <div id="inputModal">
     <div id="inputModalBox">
-        <h3 style="color:#1976d2;margin-bottom:8px;text-align:center;font-size:clamp(20px, 5vw, 25px);">إدخال/تحديث بيانات الناخبين</h3>
+        <h3>إدخال/تحديث بيانات الناخبين</h3>
         <textarea id="textInput" placeholder="مثال: ١ ابتسام ... ٢ ابتسام ... ٣ ... في نفس السطر أو سطور متعددة"></textarea>
         <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: center;">
             <button onclick="loadData()">تحميل البيانات</button>
             <button onclick="getFromUrl()">جلب من رابط</button>
+            <button onclick="autoLoadFromUrl()">تحميل من الرابط التلقائي</button>
             <button id="modalClose">إغلاق</button>
         </div>
         <div style="color:#b99;font-size:clamp(11px, 2.5vw, 12px); margin-top:12px; text-align:center;">
@@ -416,43 +423,77 @@ h1 {
 <div id="printArea" style="display:none;">
     <div id="pSerialOnly" style="font-size:28px;font-weight:bold;text-align:center;margin-top:4px;"></div>
 </div>
+
 <script>
+// ==================== متغيرات عامة ====================
 const AUTOLOAD_URL = "https://raw.githubusercontent.com/mohamednasr5/ahm/refs/heads/main/00.txt";
+let voters = [];
+let micActive = false;
+let silenceTimeout;
+let speechBuffer = "";
+let recognition;
+const SILENCE_DURATION = 700;
+
+// ==================== تحميل البيانات التلقائي ====================
 window.addEventListener('DOMContentLoaded', () => {
+    autoLoadFromUrl();
+});
+
+function autoLoadFromUrl() {
+    if (!AUTOLOAD_URL) {
+        console.log("لا يوجد رابط تلقائي");
+        return;
+    }
     fetch(AUTOLOAD_URL)
-        .then(resp => resp.ok ? resp.text() : Promise.reject())
+        .then(resp => resp.ok ? resp.text() : Promise.reject("خطأ في الجلب"))
         .then(text => {
             document.getElementById('textInput').value = text.trim();
             loadData();
             updateDotStatus();
+        })
+        .catch(err => {
+            console.log("فشل التحميل التلقائي:", err);
         });
-});
+}
 
-let voters = [];
+// ==================== عناصر DOM ====================
 const floatingInputBtn = document.getElementById('floatingInputBtn');
 const inputModal = document.getElementById('inputModal');
 const modalCloseBtn = document.getElementById('modalClose');
 const textInput = document.getElementById('textInput');
 const dataStatusDot = document.getElementById('dataStatusDot');
 
+// ==================== دوال العناصر ====================
 function updateDotStatus() {
-    if (textInput.value.trim()) dataStatusDot.classList.add('full');
-    else dataStatusDot.classList.remove('full');
+    if (textInput.value.trim()) {
+        dataStatusDot.classList.add('full');
+    } else {
+        dataStatusDot.classList.remove('full');
+    }
 }
+
 floatingInputBtn.onclick = function() {
     inputModal.style.display = 'flex';
     updateDotStatus();
 }
-modalCloseBtn.onclick = function() { inputModal.style.display = 'none'; }
-inputModal.addEventListener('click',function(e){
-    if(e.target === inputModal) inputModal.style.display='none';
-});
-textInput.addEventListener('input', updateDotStatus);
-floatingInputBtn.addEventListener('click', updateDotStatus);
 
+modalCloseBtn.onclick = function() {
+    inputModal.style.display = 'none';
+}
+
+inputModal.addEventListener('click', function(e) {
+    if (e.target === inputModal) {
+        inputModal.style.display = 'none';
+    }
+});
+
+textInput.addEventListener('input', updateDotStatus);
+
+// ==================== جلب البيانات من الرابط ====================
 function getFromUrl() {
     let url = prompt("ضع رابط الملف أو النص هنا:");
     if (!url) return;
+    
     fetch(url)
         .then(resp => resp.ok ? resp.text() : Promise.reject("خطأ في جلب النص"))
         .then(text => {
@@ -463,6 +504,7 @@ function getFromUrl() {
         .catch(() => alert("تعذر جلب النص من الرابط، تأكد أن الرابط يعمل وبه نص واضح."));
 }
 
+// ==================== معالجة الأرقام والأسماء ====================
 function fixNumbers(str) {
     const map = {"٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9"};
     return str.replace(/[٠-٩]/g, d => map[d]);
@@ -478,65 +520,94 @@ function extractNumberName(line) {
     if (line.includes("مسلسل السم")) return [];
     if (/^\d+\s+من\s+\d+/.test(line)) return [];
     if (line.includes("رقم اللجنة")) return [];
+    
     let regex = /(\d{1,5})\s+([\u0600-\u06FF]+(?:\s+[\u0600-\u06FF]+)*)(?=\s+\d{1,5}\b|$)/g;
     let matches = [...line.matchAll(regex)];
     if (!matches.length) return [];
+    
     return matches.map(m => ({
         number: m[1],
         name: m[2].trim()
     }));
 }
 
+// ==================== تحميل البيانات ====================
 function loadData() {
     const text = textInput.value.trim();
-    if (!text) { alert("أدخل النص أولاً!"); updateDotStatus(); return; }
+    if (!text) {
+        alert("أدخل النص أولاً!");
+        updateDotStatus();
+        return;
+    }
+    
     voters = [];
     const lines = text.split(/\n/);
     lines.forEach(line => {
         const recs = extractNumberName(line);
-        if (recs.length) voters.push(...recs);
+        if (recs.length) {
+            voters.push(...recs);
+        }
     });
+    
     alert("تم تحميل " + voters.length + " ناخب.");
     inputModal.style.display = 'none';
-    setTimeout(() => {document.getElementById('searchBox').focus();}, 200);
+    setTimeout(() => { document.getElementById('searchBox').focus(); }, 200);
     search();
     updateDotStatus();
 }
 
+// ==================== خوارزمية Levenshtein ====================
 function levenshtein(a, b) {
-    a = a || ""; b = b || "";
+    a = a || "";
+    b = b || "";
     const m = a.length, n = b.length;
-    if (!m) return n; if (!n) return m;
+    if (!m) return n;
+    if (!n) return m;
+    
     let v0 = new Array(n + 1), v1 = new Array(n + 1);
     for (let i = 0; i <= n; i++) v0[i] = i;
+    
     for (let i = 0; i < m; i++) {
         v1[0] = i + 1;
-        for (let j = 0; j < n; j++)
-            v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + (a[i] === b[j] ? 0 : 1));
+        for (let j = 0; j < n; j++) {
+            v1[j + 1] = Math.min(
+                v1[j] + 1,
+                v0[j + 1] + 1,
+                v0[j] + (a[i] === b[j] ? 0 : 1)
+            );
+        }
         [v0, v1] = [v1, v0];
     }
     return v0[n];
 }
 
+// ==================== البحث الذكي ====================
 function smartMatch(query, name) {
-    query = normalizeName(query); name = normalizeName(name);
+    query = normalizeName(query);
+    name = normalizeName(name);
     if (!query) return false;
+    
     const minLen = Math.min(query.length, name.length);
     const dist = levenshtein(query, name.slice(0, query.length));
     if (minLen >= 3 && dist <= 2) return true;
+    
     const qWords = query.split(" ");
     const nameWords = name.split(" ");
-    for(let shift=1; shift<Math.min(3, nameWords.length - qWords.length + 2); shift++) {
-        let subName = nameWords.slice(shift, shift+qWords.length).join(" ");
+    
+    for (let shift = 1; shift < Math.min(3, nameWords.length - qWords.length + 2); shift++) {
+        let subName = nameWords.slice(shift, shift + qWords.length).join(" ");
         if (subName && levenshtein(query, subName) <= 2) return true;
     }
-    for(let i=0; i<=nameWords.length-qWords.length; i++) {
-        let subName = nameWords.slice(i,i+qWords.length).join(" ");
+    
+    for (let i = 0; i <= nameWords.length - qWords.length; i++) {
+        let subName = nameWords.slice(i, i + qWords.length).join(" ");
         if (levenshtein(query, subName) <= 2) return true;
     }
+    
     return nameWords.some(word => levenshtein(query, word) <= 1);
 }
 
+// ==================== تصحيح الأسماء ====================
 function correctName(searchText, originalName) {
     const searchWords = normalizeName(searchText).split(" ").filter(Boolean);
     const originalWords = normalizeName(originalName).split(" ").filter(Boolean);
@@ -571,19 +642,20 @@ function correctName(searchText, originalName) {
     return correctedWords.join(" ");
 }
 
+// ==================== البحث الرئيسي ====================
 function search() {
     let q = document.getElementById("searchBox").value.trim();
     let res = document.getElementById("results");
     res.innerHTML = "";
+    
     if (!q) return;
+    
     const normQ = normalizeName(q);
     const scored = voters.map(v => {
-        const score =
-            smartMatch(normQ, v.name) ? 0 :
-            levenshtein(normQ, normalizeName(v.name));
+        const score = smartMatch(normQ, v.name) ? 0 : levenshtein(normQ, normalizeName(v.name));
         return {v, score};
     })
-    .sort((a,b) => a.score - b.score)
+    .sort((a, b) => a.score - b.score)
     .filter(a => a.score <= 2 || smartMatch(normQ, a.v.name))
     .slice(0, 15);
 
@@ -603,6 +675,7 @@ function search() {
     });
 }
 
+// ==================== تحويل الأرقام للعربية ====================
 function numberToArabic(num) {
     const ones = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
     const teens = ["عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
@@ -615,144 +688,3 @@ function numberToArabic(num) {
     if (num === 2) return "اثنان";
     
     let result = "";
-    
-    if (num >= 1000) {
-        const thousands = Math.floor(num / 1000);
-        if (thousands === 1) result += "ألف";
-        else if (thousands === 2) result += "ألفان";
-        else if (thousands <= 10) result += ones[thousands] + " آلاف";
-        else result += numberToArabic(thousands) + " ألف";
-        num %= 1000;
-        if (num > 0) result += " و";
-    }
-    
-    if (num >= 100) {
-        result += hundreds[Math.floor(num / 100)];
-        num %= 100;
-        if (num > 0) result += " و";
-    }
-    
-    if (num >= 20) {
-        result += tens[Math.floor(num / 10)];
-        num %= 10;
-        if (num > 0) result += " و";
-    } else if (num >= 10) {
-        result += teens[num - 10];
-        num = 0;
-    }
-    
-    if (num > 0) {
-        result += ones[num];
-    }
-    
-    return result;
-}
-
-function speakNumber(num) {
-    if ('speechSynthesis' in window) {
-        const arabicNum = numberToArabic(num);
-        let utter = new SpeechSynthesisUtterance(arabicNum);
-        utter.lang = 'ar';
-        utter.rate = 1.0;
-        utter.pitch = 1.0;
-        utter.volume = 1.0;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
-    }
-}
-
-function showCard(v) {
-    document.getElementById("modalName").textContent = v.name;
-    document.getElementById("modalSerial").textContent = v.number;
-    document.getElementById("pSerialOnly").textContent = v.number;
-    document.getElementById("modal").style.display = "flex";
-    speakNumber(v.number);
-}
-
-function showCardWithName(number, displayName) {
-    document.getElementById("modalName").textContent = displayName;
-    document.getElementById("modalSerial").textContent = number;
-    document.getElementById("pSerialOnly").textContent = number;
-    document.getElementById("modal").style.display = "flex";
-    speakNumber(number);
-}
-
-function printCard() {window.print();}
-
-let recognition;
-let micActive = false;
-let silenceTimeout;
-let speechBuffer = "";
-const SILENCE_DURATION = 700;
-
-try {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.lang = 'ar-EG';
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    
-    recognition.onstart = () => {
-        micActive = true;
-        speechBuffer = "";
-        document.getElementById('micBtn').classList.add('active');
-        document.getElementById('micStatus').textContent = "يستمع...";
-        document.getElementById('searchBox').value = "";
-        document.getElementById('results').innerHTML = "";
-        clearTimeout(silenceTimeout);
-    };
-    
-    recognition.onresult = (event) => {
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-                speechBuffer += event.results[i][0].transcript.trim() + " ";
-            }
-        }
-        
-        clearTimeout(silenceTimeout);
-        silenceTimeout = setTimeout(() => {
-            if (micActive && speechBuffer.trim()) {
-                recognition.stop();
-                micActive = false;
-                document.getElementById('micBtn').classList.remove('active');
-                document.getElementById('micStatus').textContent = "";
-                document.getElementById('searchBox').value = speechBuffer.trim();
-                search();
-            }
-        }, SILENCE_DURATION);
-    };
-    
-    recognition.onend = () => {
-        clearTimeout(silenceTimeout);
-        micActive = false;
-        document.getElementById('micBtn').classList.remove('active');
-        document.getElementById('micStatus').textContent = "";
-        if (speechBuffer.trim()) {
-            document.getElementById('searchBox').value = speechBuffer.trim();
-            search();
-        }
-    };
-    
-    recognition.onerror = (e) => {
-        clearTimeout(silenceTimeout);
-        micActive = false;
-        document.getElementById('micBtn').classList.remove('active');
-        if (e.error === 'no-speech') {
-            document.getElementById('micStatus').textContent = "⚠️ لم يتم التقاط صوت";
-        } else {
-            document.getElementById('micStatus').textContent = "❌ خطأ في الاستماع";
-        }
-    }
-    
-    document.getElementById('micBtn').addEventListener('click', function() {
-        if (!micActive) {
-            speechBuffer = "";
-            recognition.start();
-        } else {
-            recognition.stop();
-        }
-    });
-} catch (e) {
-    document.getElementById('micStatus').textContent = "🎤 غير مدعوم";
-}
