@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>انتخابات 2025</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
 <style>
 * {margin: 0; padding: 0; box-sizing: border-box;}
 body {
@@ -15,10 +15,10 @@ body {
     min-height:100vh;
 }
 .container {
-    max-width:1000px; 
-    margin:auto; 
+    max-width:1000px;
+    margin:auto;
     background:rgba(255,255,255,0.93);
-    padding:32px 20px 30px 20px; 
+    padding:32px 20px 30px 20px;
     border-radius:24px;
     box-shadow:0 10px 32px 2px rgba(30,60,170,0.13),0 1.5px 22px 0 rgba(0,0,0,0.06);
     animation: fadein 1.2s;
@@ -28,97 +28,97 @@ body {
     100%{transform:scale(1) translateY(0);}
 }
 h1 {
-    text-align:center; 
-    margin-bottom:5px; 
+    text-align:center;
+    margin-bottom:5px;
     color: #1976d2;
     letter-spacing:2px;
     font-size:clamp(32px, 8vw, 42px);
     background: linear-gradient(95deg,#2adfc4 30%,#0099ff 80%);
-    background-clip: text; 
+    background-clip: text;
     -webkit-background-clip: text;
-    color: transparent; 
+    color: transparent;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 6px 32px #00dbe24c;
 }
 .subtitle {
-    text-align:center; 
+    text-align:center;
     color:#166;
     margin-bottom:24px;
     font-size:clamp(16px, 5vw, 20px);
-    font-weight:500; 
+    font-weight:500;
     letter-spacing:.1em;
     text-shadow:0 1px 0 #fff,0 4px 20px #35d7dd19;
 }
 .search-box {
-    width:99%; 
+    width:99%;
     max-width:480px;
     margin:22px auto 0 auto;
     display:block;
-    padding:18px; 
+    padding:18px;
     font-size:clamp(16px, 4vw, 25px);
-    border-radius:50px; 
+    border-radius:50px;
     border:2.5px solid #19bcc4;
-    text-align:center; 
-    box-shadow:0 0 12px #1ee7ad2c; 
+    text-align:center;
+    box-shadow:0 0 12px #1ee7ad2c;
     margin-bottom: 10px;
     background:rgba(245,255,255,0.89);
 }
 .results {
-    margin-top:26px; 
-    max-height:500px; 
-    overflow-y:auto; 
+    margin-top:26px;
+    max-height:500px;
+    overflow-y:auto;
     min-height:40px;
 }
 .voter-item {
     background:linear-gradient(95deg,#fff 86%,#e1f8f4 100%);
-    padding:19px 16px; 
-    border-right:7px solid #27e88b; 
+    padding:19px 16px;
+    border-right:7px solid #27e88b;
     border-radius:19px;
-    margin:14px 0; 
-    box-shadow:0 3px 15px #1bc98221; 
-    cursor:pointer; 
+    margin:14px 0;
+    box-shadow:0 3px 15px #1bc98221;
+    cursor:pointer;
     transition:.23s;
-    overflow:hidden; 
+    overflow:hidden;
     animation:faderes .7s cubic-bezier(.4,1.64,.41,.8);
 }
 @keyframes faderes {
     0%{opacity:0;transform:scale(.95) translateY(18px);}
-    70%{opacity:1;} 
+    70%{opacity:1;}
     100%{transform:scale(1) translateY(0);}
 }
 .voter-item:hover {
     background:linear-gradient(90deg,#eefff0 50%,#ddf2ff 100%);
-    border-right:8px solid #00dcff; 
+    border-right:8px solid #00dcff;
     transform: scale(1.031) translateX(-4px);
     box-shadow:0 9px 30px #3eecf348;
 }
 .voter-name {
     font-size:clamp(18px, 4vw, 23px);
-    font-weight:bold; 
+    font-weight:bold;
     color:#1a3f58;
 }
 .voter-serial {
     font-size:clamp(20px, 5vw, 27px);
-    font-weight:900; 
+    font-weight:900;
     color:#e50c41;
     padding-top:4px;
     letter-spacing:2px;
 }
 .mic-section {
-    text-align:center; 
+    text-align:center;
     margin:20px 0 30px 0;
 }
 #micBtn {
-    font-size:clamp(24px, 8vw, 28px); 
-    border:none; 
+    font-size:clamp(24px, 8vw, 28px);
+    border:none;
     border-radius:50%;
     background:linear-gradient(140deg,#ffe568 50%,#01eaea 100%);
-    color:#1877f2; 
-    padding:clamp(15px, 5vw, 20px); 
+    color:#1877f2;
+    padding:clamp(15px, 5vw, 20px);
     cursor:pointer;
     box-shadow:0 6px 20px #3eccec77, 0 2px 10px #fffad2;
-    position:relative; 
-    outline:none; 
+    position:relative;
+    outline:none;
     margin:auto;
     transition:box-shadow .22s,background .2s;
     width: clamp(60px, 12vw, 80px);
@@ -128,7 +128,7 @@ h1 {
     justify-content: center;
 }
 #micBtn.active {
-    background:linear-gradient(90deg,#00d6d3 50%,#49fd68 100%); 
+    background:linear-gradient(90deg,#00d6d3 50%,#49fd68 100%);
     color:#222;
 }
 #micStatus {
@@ -139,21 +139,21 @@ h1 {
     letter-spacing:1.5px;
 }
 #floatingInputBtn {
-    position: fixed; 
-    top: 70px; 
-    left: 20px; 
+    position: fixed;
+    top: 70px;
+    left: 20px;
     z-index: 9999;
     background:linear-gradient(125deg,#1877f2 40%,#21d0ff 100%);
-    color: white; 
-    border: none; 
-    border-radius: 54%; 
-    width: clamp(50px, 10vw, 60px); 
+    color: white;
+    border: none;
+    border-radius: 54%;
+    width: clamp(50px, 10vw, 60px);
     height: clamp(50px, 10vw, 60px);
-    font-size: clamp(24px, 6vw, 32px); 
+    font-size: clamp(24px, 6vw, 32px);
     box-shadow:0 8px 27px #077de838, 0 2px 6px #fff;
-    cursor: pointer; 
-    display: flex; 
-    align-items: center; 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
     justify-content: center;
     transition:.24s cubic-bezier(.3,.8,.3,1.25);
     outline: none;
@@ -162,16 +162,16 @@ h1 {
     background:linear-gradient(95deg,#0cadf5 20%,#08dfc3 99%);
 }
 #dataStatusDot {
-    position: absolute; 
-    top: 11px; 
-    left: 11px; 
+    position: absolute;
+    top: 11px;
+    left: 11px;
     width: 13px;
-    height: 13px; 
+    height: 13px;
     border-radius: 50%;
     background: #fb5858;
-    border:2.5px solid #fff; 
+    border:2.5px solid #fff;
     display: block;
-    z-index: 2; 
+    z-index: 2;
     transition:.22s;
 }
 #dataStatusDot.full {
@@ -193,7 +193,7 @@ h1 {
     background: linear-gradient(110deg,#ffffff 70%,#d3faff 100%);
     padding: clamp(20px, 5vw, 28px) clamp(15px, 4vw, 18px) 10px clamp(15px, 4vw, 18px);
     border-radius: 13px;
-    max-width:430px; 
+    max-width:430px;
     min-width:265px;
     width:96vw;
     box-shadow:0 3px 30px #1fd7f130;
@@ -203,24 +203,24 @@ h1 {
     animation: fadein .61s cubic-bezier(.41,1.14,.77,1);
 }
 #inputModalBox textarea {
-    width:100%; 
+    width:100%;
     min-height:180px;
-    border-radius:8px; 
-    border:2.3px solid #35b8dc; 
+    border-radius:8px;
+    border:2.3px solid #35b8dc;
     font-size:clamp(14px, 3vw, 16px);
-    margin-bottom:16px; 
+    margin-bottom:16px;
     padding:12px;
 }
 #inputModalBox button {
     background: linear-gradient(93deg,#1dc5ff 60%,#11db94 100%);
-    color: white; 
-    border:none; 
+    color: white;
+    border:none;
     font-size:clamp(14px, 3vw, 18px);
-    padding:10px 23px; 
+    padding:10px 23px;
     border-radius:9px;
     margin:6px 2px;
     cursor:pointer;
-    margin-bottom:3px; 
+    margin-bottom:3px;
     transition:.15s;
 }
 #inputModalBox button:hover {
@@ -233,39 +233,39 @@ h1 {
     background:#d3052f;
 }
 .modal {
-    display:none; 
-    position:fixed; 
-    left:0; 
-    top:0; 
-    width:100%; 
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
     height:100%;
-    background:rgba(30,43,58,0.92); 
-    z-index:10000; 
-    justify-content:center; 
+    background:rgba(30,43,58,0.92);
+    z-index:10000;
+    justify-content:center;
     align-items:center;
 }
 .card {
-    width:clamp(300px, 90vw, 370px); 
+    width:clamp(300px, 90vw, 370px);
     background:linear-gradient(113deg,#fff 75%,#22b9e5 160%);
-    border-radius:25px; 
-    overflow:hidden; 
+    border-radius:25px;
+    overflow:hidden;
     box-shadow:0 22px 44px #2d7ff74a,0 2px 4px #fff;
-    margin:0 auto; 
-    display:flex; 
+    margin:0 auto;
+    display:flex;
     flex-direction:column;
-    align-items:center; 
+    align-items:center;
     position:relative;
 }
 .card-header {
-    color:#1976d2; 
+    color:#1976d2;
     padding:clamp(20px, 5vw, 30px) clamp(12px, 3vw, 18px) 12px clamp(12px, 3vw, 18px);
     text-align:center;
-    font-size:clamp(24px, 6vw, 33px); 
-    font-weight:900; 
-    width:98%; 
-    word-break: break-word; 
+    font-size:clamp(24px, 6vw, 33px);
+    font-weight:900;
+    width:98%;
+    word-break: break-word;
     line-height:1.45;
-    letter-spacing:.6px; 
+    letter-spacing:.6px;
     border-right:10px solid #12bee7;
     background:linear-gradient(97deg,#fff 60%,#d3faff 120%);
     margin-bottom:0;
@@ -273,14 +273,14 @@ h1 {
     box-shadow:0 1.5px 10px #21badc23;
 }
 .big-serial {
-    font-size:clamp(40px, 10vw, 54px); 
-    font-weight:900; 
-    color: #dc143c; 
+    font-size:clamp(40px, 10vw, 54px);
+    font-weight:900;
+    color:#dc143c;
     border-right:9px solid #f55151;
     background:linear-gradient(87deg,#fff 70%,#ffe4e4 110%);
-    padding:clamp(20px, 5vw, 26px) 0 clamp(20px, 5vw, 23px) 0; 
+    padding:clamp(20px, 5vw, 26px) 0 clamp(20px, 5vw, 23px) 0;
     border-radius:17px;
-    margin:17px 0 19px 0; 
+    margin:17px 0 19px 0;
     letter-spacing:3px;
     text-align:center;
     width: 85%;
@@ -288,17 +288,17 @@ h1 {
     box-shadow:0 2px 20px #21badc31,0 2px 14px #ffadad08;
 }
 .print-btn {
-    background:linear-gradient(90deg,#e7233c 70%,#ff8b8b 100%); 
-    color:white; 
+    background:linear-gradient(90deg,#e7233c 70%,#ff8b8b 100%);
+    color:white;
     border:none;
-    width:82%; 
-    padding:clamp(12px, 3vw, 16px); 
-    margin:clamp(15px, 4vw, 18px) auto 18px auto; 
-    border-radius:40px; 
-    font-size:clamp(20px, 5vw, 27px); 
-    cursor:pointer; 
-    box-shadow:0 3px 18px #d32f2f22; 
-    font-weight:800; 
+    width:82%;
+    padding:clamp(12px, 3vw, 16px);
+    margin:clamp(15px, 4vw, 18px) auto 18px auto;
+    border-radius:40px;
+    font-size:clamp(20px, 5vw, 27px);
+    cursor:pointer;
+    box-shadow:0 3px 18px #d32f2f22;
+    font-weight:800;
     transition:.13s;
 }
 .print-btn:hover {
@@ -306,18 +306,18 @@ h1 {
     color:#dc143c;
 }
 .close-btn {
-    position:absolute; 
+    position:absolute;
     left:13px;
     top:13px;
-    font-size:clamp(20px, 5vw, 28px); 
+    font-size:clamp(20px, 5vw, 28px);
     background:linear-gradient(120deg,#ee8899 30%,#ffeded 160%);
-    color:#b31c2d; 
-    border:none; 
-    border-radius:24px; 
-    padding:5px 17px 2px 17px; 
-    cursor:pointer; 
-    font-weight:800; 
-    transition: 0.18s; 
+    color:#b31c2d;
+    border:none;
+    border-radius:24px;
+    padding:5px 17px 2px 17px;
+    cursor:pointer;
+    font-weight:800;
+    transition: 0.18s;
     box-shadow:0 2px 7px #fbc6c6ab;
 }
 .close-btn:hover {
@@ -331,9 +331,9 @@ h1 {
     font-size:clamp(14px, 3vw, 18px);
 }
 .credit a {
-    color:#1877f2; 
-    font-weight:bold; 
-    text-decoration:none; 
+    color:#1877f2;
+    font-weight:bold;
+    text-decoration:none;
     transition:.15s;
 }
 .credit a:hover {
@@ -356,53 +356,37 @@ h1 {
 ::-webkit-scrollbar{height:9px;width:7px;background:#eee;}
 ::-webkit-scrollbar-thumb{background:#10c1e7;border-radius:7px;}
 </style>
-
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
 </head>
-
 <body>
 <div class="container">
     <h1>انتخابات 2025</h1>
     <p class="subtitle">ابحث بالصوت أو أدخل أسماء الناخبين - النظام يعرض النتائج فورياً</p>
-
     <div class="mic-section">
         <button id="micBtn" title="بحث صوتي">🎤</button>
         <span id="micStatus"></span>
     </div>
-
     <input type="text" id="searchBox" class="search-box" placeholder="ابحث بالاسم أو الرقم..." onkeyup="search()">
     <div id="results" class="results"></div>
-
     <div class="credit">
         تم برمجة الأداة بكل حب من المهندس
         <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank">محمد حماد</a>
     </div>
 </div>
-<button id="floatingInputBtn" title="إدخال أو تحديث بيانات">
-    📋
-    <span id="dataStatusDot"></span>
-</button>
-
+<button id="floatingInputBtn" title="إدخال أو تحديث بيانات">📋<span id="dataStatusDot"></span></button>
 <div id="inputModal">
     <div id="inputModalBox">
-        <h3 style="color:#1976d2;margin-bottom:8px;text-align:center;font-size:clamp(20px, 5vw, 25px);">
-            إدخال/تحديث بيانات الناخبين
-        </h3>
-
+        <h3 style="color:#1976d2;margin-bottom:8px;text-align:center;font-size:clamp(20px, 5vw, 25px);">إدخال/تحديث بيانات الناخبين</h3>
         <textarea id="textInput" placeholder="مثال: ١ ابتسام ... ٢ ابتسام ... ٣ ... في نفس السطر أو سطور متعددة"></textarea>
-
-        <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: center;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
             <button onclick="loadData()">تحميل البيانات</button>
             <button onclick="getFromUrl()">جلب من رابط</button>
             <button id="modalClose">إغلاق</button>
         </div>
-
-        <div style="color:#b99;font-size:clamp(11px, 2.5vw, 12px); margin-top:12px; text-align:center;">
+        <div style="color:#b99;font-size:clamp(11px,2.5vw,12px);margin-top:12px;text-align:center;">
             يمكنك لصق البيانات يدويًا أو استخدام الزر لجلبها تلقائياً من أي رابط txt.
         </div>
     </div>
 </div>
-
 <div id="modal" class="modal" onclick="this.style.display='none'">
     <div class="card" onclick="event.stopPropagation()">
         <button class="close-btn" onclick="document.getElementById('modal').style.display='none';" title="إغلاق البطاقة">×</button>
@@ -411,14 +395,11 @@ h1 {
         <button class="print-btn" onclick="printCard()">طباعة</button>
     </div>
 </div>
-
 <div id="printArea" style="display:none;">
     <div id="pSerialOnly" style="font-size:28px;font-weight:bold;text-align:center;margin-top:4px;"></div>
 </div>
-
 <script>
 const AUTOLOAD_URL = "https://raw.githubusercontent.com/mohamednasr5/ahm/refs/heads/main/00.txt";
-
 window.addEventListener('DOMContentLoaded', () => {
     fetch(AUTOLOAD_URL)
         .then(r => r.ok ? r.text() : Promise.reject())
@@ -429,7 +410,6 @@ window.addEventListener('DOMContentLoaded', () => {
         })
         .catch(() => console.log("لم يتم تحميل البيانات تلقائياً"));
 });
-
 let voters = [];
 const floatingInputBtn = document.getElementById('floatingInputBtn');
 const inputModal = document.getElementById('inputModal');
@@ -440,29 +420,22 @@ const searchBox = document.getElementById('searchBox');
 const results = document.getElementById('results');
 const micBtn = document.getElementById('micBtn');
 const micStatus = document.getElementById('micStatus');
-
 function updateDotStatus() {
     if (textInput.value.trim()) dataStatusDot.classList.add('full');
     else dataStatusDot.classList.remove('full');
 }
-
 floatingInputBtn.onclick = () => {
     inputModal.style.display = 'flex';
     updateDotStatus();
 };
-
 modalCloseBtn.onclick = () => inputModal.style.display = 'none';
-
 inputModal.addEventListener('click', e => {
     if (e.target === inputModal) inputModal.style.display='none';
 });
-
 textInput.addEventListener('input', updateDotStatus);
-
 function getFromUrl() {
     let url = prompt("ضع رابط الملف أو النص هنا:");
     if (!url) return;
-
     fetch(url)
         .then(r => r.ok ? r.text() : Promise.reject())
         .then(text => {
@@ -472,80 +445,64 @@ function getFromUrl() {
         })
         .catch(() => alert("تعذر جلب النص من الرابط."));
 }
-
 function fixNumbers(str) {
     const map = {"٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9"};
     return str.replace(/[٠-٩]/g, d => map[d]);
 }
-
 function normalizeName(str) {
-    return str.replace(/[يى]/g, "ى").replace(/\s+/g, " ").trim();
+    // توحيد ي و ى، وإزالة الفراغات الزائدة
+    str = str.replace(/[يى]/g, "ى").replace(/\s+/g, " ").trim();
+    // دمج عبد واسم بعده (أي "عبد الوهاب" تصبح "عبدالوهاب" للبحث)
+    str = str.replace(/عبد\s+/g, 'عبد');
+    return str;
 }
-
 function extractNumberName(line) {
     line = fixNumbers(line).trim();
     if (!line) return [];
     if (line.includes("مسلسل السم")) return [];
     if (/^\d+\s+من\s+\d+/.test(line)) return [];
     if (line.includes("رقم اللجنة")) return [];
-
     let regex = /(\d{1,5})\s+([\u0600-\u06FF]+(?:\s+[\u0600-\u06FF]+)*)(?=\s+\d{1,5}\b|$)/g;
     let matches = [...line.matchAll(regex)];
-
     if (!matches.length) return [];
-
     return matches.map(m => ({
         number: m[1],
         name: m[2].trim()
     }));
 }
-
 function loadData() {
     const text = textInput.value.trim();
-    if (!text) { 
-        alert("أدخل النص أولاً!"); 
-        updateDotStatus(); 
-        return; 
+    if (!text) {
+        alert("أدخل النص أولاً!");
+        updateDotStatus();
+        return;
     }
-
     voters = [];
     const lines = text.split(/\n/);
-
     lines.forEach(line => {
         const recs = extractNumberName(line);
         if (recs.length) voters.push(...recs);
     });
-
     alert("تم تحميل " + voters.length + " ناخب.");
     inputModal.style.display = 'none';
-
     setTimeout(() => searchBox.focus(), 200);
-
     search();
     updateDotStatus();
 }
-
 let levCache = {};
-
 function levenshtein(a, b) {
     a = a || "";
     b = b || "";
-
     let key = a + "|" + b;
     if (levCache[key] !== undefined) return levCache[key];
-
     const m = a.length, n = b.length;
     if (!m) return n;
     if (!n) return m;
-
     let v0 = new Array(n + 1);
     let v1 = new Array(n + 1);
-
     for (let i = 0; i <= n; i++) v0[i] = i;
-
     for (let i = 0; i < m; i++) {
         v1[0] = i + 1;
-
         for (let j = 0; j < n; j++) {
             v1[j + 1] = Math.min(
                 v1[j] + 1,
@@ -553,39 +510,27 @@ function levenshtein(a, b) {
                 v0[j] + (a[i] === b[j] ? 0 : 1)
             );
         }
-
         let t = v0; v0 = v1; v1 = t;
     }
-
     levCache[key] = v0[n];
     return v0[n];
 }
-
 function correctName(searchText, originalName) {
     const searchWords = normalizeName(searchText).split(" ").filter(Boolean);
     const originalWords = normalizeName(originalName).split(" ").filter(Boolean);
-
     let corrected = [];
     let usedIndices = new Set();
-
     for (let ow of originalWords) {
-        let best = ow;
-        let bestScore = 3;
-        let bestIdx = -1;
-
+        let best = ow; let bestScore = 3; let bestIdx = -1;
         for (let i = 0; i < searchWords.length; i++) {
             if (usedIndices.has(i)) continue;
-            
             let sw = searchWords[i];
             let dist = levenshtein(sw, ow);
-
             if (dist < bestScore) {
                 bestScore = dist;
-                best = sw;
-                bestIdx = i;
+                best = sw; bestIdx = i;
             }
         }
-
         if (bestIdx !== -1 && bestScore <= 1) {
             corrected.push(best);
             usedIndices.add(bestIdx);
@@ -593,107 +538,81 @@ function correctName(searchText, originalName) {
             corrected.push(ow);
         }
     }
-
     for (let i = 0; i < searchWords.length; i++) {
-        if (!usedIndices.has(i)) {
-            corrected.push(searchWords[i]);
-        }
+        if (!usedIndices.has(i)) {corrected.push(searchWords[i]);}
     }
-
     return corrected.join(" ");
 }
-
 function smartMatch(q, name) {
     if (name.includes(q)) return true;
-
     const qWords = q.split(" ");
     const nWords = name.split(" ");
-
+    let matchCount = 0;
     for (let qw of qWords) {
-        let matched = false;
         for (let nw of nWords) {
             if (levenshtein(qw, nw) <= 1) {
-                matched = true;
+                matchCount++;
                 break;
             }
         }
-        if (!matched) return false;
     }
-
-    return true;
+    // يكفي لو 60% من كلمات البحث وجدت تشابه
+    return matchCount >= Math.max(1, Math.floor(qWords.length * 0.6));
 }
-
 function search() {
     let q = searchBox.value.trim();
-
     results.innerHTML = "";
     if (!q) return;
-
     const normQ = normalizeName(q);
     let html = "";
     let out = [];
-
     for (let v of voters) {
         const n = normalizeName(v.name);
-
-        if (n.includes(normQ) || smartMatch(normQ, n)) {
+        if (n.includes(normQ) || smartMatch(normQ, n) || smartMatch(n, normQ)) {
             let score = levenshtein(normQ, n.slice(0, normQ.length));
             out.push({ v, score });
         }
     }
-
     out.sort((a, b) => a.score - b.score)
        .slice(0, 20)
        .forEach(o => {
             let v = o.v;
             let escapedName = v.name.replace(/'/g, "\\'");
             let escapedQuery = q.replace(/'/g, "\\'");
-
             html += `
-            <div class="voter-item" 
+            <div class="voter-item"
                  onclick="showCardWithName('${v.number}', '${escapedName}', '${escapedQuery}')">
                 <div class="voter-name">${v.name}</div>
                 <div class="voter-serial">رقم الكشف: ${v.number}</div>
             </div>
             `;
         });
-
     results.innerHTML = html;
 }
-
 function showCardWithName(number, originalName, searchQuery) {
     let displayName = correctName(searchQuery, originalName);
-    
     document.getElementById("modalName").textContent = displayName;
     document.getElementById("modalSerial").textContent = number;
     document.getElementById("pSerialOnly").textContent = number;
-
     document.getElementById("modal").style.display = "flex";
-
     speakNumber(number);
 }
+function printCard() {window.print();}
 
-function printCard() {
-    window.print();
-}
-
+// دالة تحويل الرقم إلى نص عربي صحيح
 function numberToArabic(num) {
     const ones = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
     const teens = ["عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
     const tens = ["", "", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
     const hundreds = ["", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"];
-
     num = parseInt(num);
     if (num === 0) return "صفر";
-
     let result = "";
-
     if (num >= 100) {
         result += hundreds[Math.floor(num / 100)];
         num %= 100;
         if (num > 0) result += " و";
     }
-
     if (num >= 20) {
         result += tens[Math.floor(num / 10)];
         num %= 10;
@@ -702,109 +621,89 @@ function numberToArabic(num) {
         result += teens[num - 10];
         num = 0;
     }
-
     if (num > 0) result += ones[num];
-
     return result;
 }
 
+// نطق الرقم بصوت عربي صحيح (يختار أفضل صوت عربي متاح)
 function speakNumber(num) {
     if ('speechSynthesis' in window) {
         const txt = numberToArabic(num);
-
-        let u = new SpeechSynthesisUtterance(txt);
-        u.lang = 'ar-EG';
-        u.rate = 1;
-        u.pitch = 1;
-
+        let utter = new SpeechSynthesisUtterance(txt);
+        utter.lang = 'ar-SA'; // يمكن التجربة بـ ar-EG أو ar حسب المتصفح
+        let voices = speechSynthesis.getVoices();
+        let voice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+        if(voice) utter.voice = voice;
+        utter.rate = 1;
+        utter.pitch = 1;
         speechSynthesis.cancel();
-        speechSynthesis.speak(u);
+        speechSynthesis.speak(utter);
     }
 }
+// تحميل أصوات المتصفح العربية عند التشغيل (مطلوب للمتصفحات الحديثة)
+window.speechSynthesis.onvoiceschanged = () => {};
 
 let recognition;
 let micActive = false;
 let silenceTimeout;
 let speechBuffer = "";
 const SILENCE_DURATION = 700;
-
 try {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
-
     recognition.lang = 'ar-EG';
     recognition.continuous = true;
     recognition.interimResults = false;
-
     recognition.onstart = () => {
         micActive = true;
         speechBuffer = "";
-
         micBtn.classList.add('active');
         micStatus.textContent = "يستمع...";
-
         searchBox.value = "";
         results.innerHTML = "";
-
         clearTimeout(silenceTimeout);
     };
-
     recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
             if (e.results[i].isFinal) {
                 speechBuffer += e.results[i][0].transcript.trim() + " ";
             }
         }
-
         clearTimeout(silenceTimeout);
-
         silenceTimeout = setTimeout(() => {
             if (micActive && speechBuffer.trim()) {
                 recognition.stop();
                 micActive = false;
-
                 micBtn.classList.remove('active');
                 micStatus.textContent = "";
-
                 searchBox.value = speechBuffer.trim();
                 search();
             }
         }, SILENCE_DURATION);
     };
-
     recognition.onerror = e => {
         micActive = false;
         micBtn.classList.remove('active');
-
         if (e.error === "no-speech")
             micStatus.textContent = "⚠️ لم يتم التقاط صوت";
         else
             micStatus.textContent = "❌ خطأ في الاستماع";
     };
-
     recognition.onend = () => {
         micActive = false;
         micBtn.classList.remove('active');
     };
-
     micBtn.onclick = () => {
         if (!micActive) {
-            try {
-                recognition.start();
-            } catch(err) {
-                console.error("خطأ في بدء التعرف الصوتي:", err);
-            }
+            try { recognition.start(); } catch(err) { console.error("خطأ في بدء التعرف الصوتي:", err); }
         } else {
             recognition.stop();
         }
     };
-
 } catch (e) {
     micStatus.textContent = "🎤 غير مدعوم";
     console.error("التعرف الصوتي غير مدعوم:", e);
 }
-
 </script>
-
 </body>
 </html>
