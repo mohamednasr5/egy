@@ -340,18 +340,28 @@ h1 {
     text-decoration: underline;
 }
 @media print {
-    body * {visibility:hidden;}
-    #printArea, #printArea * {visibility:visible;}
+    body * {visibility: hidden !important;}
+    #printArea, #printArea * {visibility: visible !important;}
     #printArea {
         position:absolute;
         left:0;top:0;
         width:5cm;height:2.5cm;
         background:white;
-        padding-top:0.6cm;
+        padding:0;
         text-align:center;
         border:1px solid #000;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    @page {size: 5cm 2.5cm;margin:0;}
+    #pSerialOnly {
+        font-size: 45px !important;
+        font-weight: bold !important;
+        color: #c00 !important;
+        letter-spacing: 1.5px;
+        width:100%;
+    }
 }
 ::-webkit-scrollbar{height:9px;width:7px;background:#eee;}
 ::-webkit-scrollbar-thumb{background:#10c1e7;border-radius:7px;}
@@ -411,7 +421,7 @@ h1 {
     </div>
 </div>
 <div id="printArea" style="display:none;">
-    <div id="pSerialOnly" style="font-size:28px;font-weight:bold;text-align:center;margin-top:4px;"></div>
+    <div id="pSerialOnly" style="font-size:45px;font-weight:bold;text-align:center;margin-top:0;"></div>
 </div>
 <script>
 const AUTOLOAD_URL = "https://raw.githubusercontent.com/mohamednasr5/ahm/refs/heads/main/00.txt";
@@ -612,8 +622,15 @@ function showCardWithName(number, originalName, searchQuery) {
     document.getElementById("modal").style.display = "flex";
     speakNumber(number);
 }
-function printCard() {window.print();}
-// دالة تحويل الرقم العربي الفصيح (حتى 9999)
+function printCard() {
+    // ظهور منطقة الطباعة فقط بالرقم
+    document.getElementById("printArea").style.display = "block";
+    document.getElementById("pSerialOnly").textContent = document.getElementById("modalSerial").textContent;
+    window.print();
+    setTimeout(function(){
+        document.getElementById("printArea").style.display = "none";
+    },333);
+}
 function numberToArabic(num) {
     num = parseInt(num);
     if(num === 0) return "صفر";
@@ -675,7 +692,7 @@ let recognition;
 let micActive = false;
 let silenceTimeout;
 let speechBuffer = "";
-const SILENCE_DURATION = 1000; // 1 ثانية للسرعة
+const SILENCE_DURATION = 1000;
 try {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
