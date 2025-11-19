@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>انتخابات 2025</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
-
 <style>
 * {margin: 0; padding: 0; box-sizing: border-box;}
 body {
@@ -356,12 +355,19 @@ h1 {
 }
 ::-webkit-scrollbar{height:9px;width:7px;background:#eee;}
 ::-webkit-scrollbar-thumb{background:#10c1e7;border-radius:7px;}
-/* --- تسريع الأداء للجوال --- */
 @media(max-width:700px){
   body, .container, .voter-item, .card, .print-btn {
       box-shadow: none !important;
       animation: none !important;
   }
+}
+.ready-status {
+    text-align:center;
+    color:#088;
+    font-size:clamp(14px, 4vw, 22px);
+    font-weight:700;
+    margin:12px 0 0 0;
+    letter-spacing:.4px;
 }
 </style>
 </head>
@@ -375,6 +381,7 @@ h1 {
     </div>
     <input type="text" id="searchBox" class="search-box" placeholder="ابحث بالاسم أو الرقم..." onkeyup="search()">
     <div id="results" class="results"></div>
+    <div id="readyStatus" class="ready-status">جاهز للعمل وتحت أمرك</div>
     <div class="credit">
         تم برمجة الأداة بكل حب من المهندس
         <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank">محمد حماد</a>
@@ -428,6 +435,7 @@ const searchBox = document.getElementById('searchBox');
 const results = document.getElementById('results');
 const micBtn = document.getElementById('micBtn');
 const micStatus = document.getElementById('micStatus');
+const readyStatus = document.getElementById('readyStatus');
 function updateDotStatus() {
     if (textInput.value.trim()) dataStatusDot.classList.add('full');
     else dataStatusDot.classList.remove('full');
@@ -489,7 +497,7 @@ function loadData() {
         const recs = extractNumberName(line);
         if (recs.length) voters.push(...recs);
     });
-    alert("تم تحميل " + voters.length + " ناخب.");
+    readyStatus.textContent = "جاهز للعمل وتحت أمرك";
     inputModal.style.display = 'none';
     setTimeout(() => searchBox.focus(), 200);
     search();
@@ -549,31 +557,31 @@ function correctName(searchText, originalName) {
     }
     return corrected.join(" ");
 }
-function smartMatch(q, name) {
-    if (name.includes(q)) return true;
-    const qWords = q.split(" ");
-    const nWords = name.split(" ");
-    let matchCount = 0;
-    for (let qw of qWords) {
-        for (let nw of nWords) {
-            if (levenshtein(qw, nw) <= 1) {
-                matchCount++;
-                break;
-            }
+function ultraFuzzyMatch(query, target) {
+    let matched = 0;
+    let qParts = normalizeName(query).split(' ').filter(Boolean);
+    let tParts = normalizeName(target).split(' ').filter(Boolean);
+    for (let qp of qParts) {
+        for (let tp of tParts) {
+            if(tp.includes(qp) || qp.includes(tp) || levenshtein(qp,tp)<=1)
+            {matched++;break;}
         }
     }
-    return matchCount >= Math.max(1, Math.floor(qWords.length * 0.6));
+    return matched >= Math.max(1, Math.ceil(qParts.length * 0.5));
 }
 function search() {
     let q = searchBox.value.trim();
     results.innerHTML = "";
-    if (!q) return;
+    if (!q) {
+        readyStatus.textContent = "جاهز لطلب جديد";
+        return;
+    }
     const normQ = normalizeName(q);
     let html = "";
     let out = [];
     for (let v of voters) {
         const n = normalizeName(v.name);
-        if (n.includes(normQ) || smartMatch(normQ, n) || smartMatch(n, normQ)) {
+        if (ultraFuzzyMatch(normQ, n) || ultraFuzzyMatch(n, normQ)) {
             let score = levenshtein(normQ, n.slice(0, normQ.length));
             out.push({ v, score });
         }
@@ -594,6 +602,7 @@ function search() {
             `;
         });
     results.innerHTML = html;
+    readyStatus.textContent = "جاهز لطلب جديد";
 }
 function showCardWithName(number, originalName, searchQuery) {
     let displayName = correctName(searchQuery, originalName);
@@ -604,13 +613,11 @@ function showCardWithName(number, originalName, searchQuery) {
     speakNumber(number);
 }
 function printCard() {window.print();}
-
 // دالة تحويل الرقم العربي الفصيح (حتى 9999)
 function numberToArabic(num) {
     num = parseInt(num);
     if(num === 0) return "صفر";
     let parts = [];
-    // الآلاف
     if(num >= 1000) {
         let thousands = Math.floor(num / 1000);
         if(thousands === 1) parts.push("ألف");
@@ -619,7 +626,6 @@ function numberToArabic(num) {
         else parts.push(thousands + " ألف");
         num %= 1000;
     }
-    // المئات
     if(num >= 100) {
         let hundreds = Math.floor(num / 100);
         if(hundreds === 1) parts.push("مائة");
@@ -627,7 +633,6 @@ function numberToArabic(num) {
         else parts.push(["ثلاثمائة","أربعمائة","خمسمائة","ستمائة","سبعمائة","ثمانمائة","تسعمائة"][hundreds-3]);
         num %= 100;
     }
-    // العشرات والوحدات
     if(num >= 20) {
         let tens = Math.floor(num / 10);
         let units = num % 10;
@@ -650,7 +655,6 @@ function numberToArabic(num) {
     }
     return parts.join(" و ");
 }
-// نطق الرقم العربي الفصيح
 function speakNumber(num) {
     if ('speechSynthesis' in window) {
         const txt = numberToArabic(num);
@@ -671,7 +675,7 @@ let recognition;
 let micActive = false;
 let silenceTimeout;
 let speechBuffer = "";
-const SILENCE_DURATION = 200;
+const SILENCE_DURATION = 1000; // 1 ثانية للسرعة
 try {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
@@ -683,11 +687,11 @@ try {
         speechBuffer = "";
         micBtn.classList.add('active');
         micStatus.textContent = "يستمع...";
+        readyStatus.textContent = "يستمع...";
         searchBox.value = "";
         results.innerHTML = "";
         clearTimeout(silenceTimeout);
     };
-    // بحث صوتي فوري عند نهاية الكلام على الموبايل
     recognition.onresult = e => {
         let tempBuffer = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -699,31 +703,49 @@ try {
             searchBox.value = tempBuffer.trim();
             search();
             speechBuffer = "";
+            micBtn.classList.remove('active');
+            micStatus.textContent = "";
+            readyStatus.textContent = "جاهز لطلب جديد";
             recognition.stop();
         }
+        clearTimeout(silenceTimeout);
+        silenceTimeout = setTimeout(() => {
+            if (micActive) {
+                recognition.stop();
+                micActive = false;
+                micBtn.classList.remove('active');
+                micStatus.textContent = "";
+                readyStatus.textContent = "جاهز لطلب جديد";
+                if(speechBuffer.trim()) {
+                    searchBox.value = speechBuffer.trim();
+                    search();
+                    speechBuffer = "";
+                }
+            }
+        }, SILENCE_DURATION);
     };
     recognition.onerror = e => {
         micActive = false;
         micBtn.classList.remove('active');
-        if (e.error === "no-speech")
-            micStatus.textContent = "⚠️ لم يتم التقاط صوت";
-        else
-            micStatus.textContent = "❌ خطأ في الاستماع";
+        micStatus.textContent = "❌ خطأ في الاستماع";
+        readyStatus.textContent = "جاهز لطلب جديد";
     };
     recognition.onend = () => {
         micActive = false;
         micBtn.classList.remove('active');
+        micStatus.textContent = "";
+        readyStatus.textContent = "جاهز لطلب جديد";
     };
     micBtn.onclick = () => {
         if (!micActive) {
-            try { recognition.start(); } catch(err) { console.error("خطأ في بدء التعرف الصوتي:", err); }
+            try { recognition.start(); } catch(err) { }
         } else {
             recognition.stop();
         }
     };
 } catch (e) {
     micStatus.textContent = "🎤 غير مدعوم";
-    console.error("التعرف الصوتي غير مدعوم:", e);
+    readyStatus.textContent = "🎤 غير مدعوم";
 }
 </script>
 </body>
